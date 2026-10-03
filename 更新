@@ -1,0 +1,30 @@
+name: 自动更新服务器配件价格
+
+on:
+  schedule:
+    - cron: '0 2 * * *'  # 每天北京时间10点执行（UTC时间2点）
+  workflow_dispatch:      # 允许手动触发执行
+
+jobs:
+  update-price:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 检出仓库代码
+        uses: actions/checkout@v4
+
+      - name: 设置Python环境
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: 安装依赖
+        run: pip install requests
+
+      - name: 运行价格更新脚本
+        run: python update_price.py
+
+      - name: 自动提交更新到仓库
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "自动更新配件价格"
+          file_pattern: "parts.json"
